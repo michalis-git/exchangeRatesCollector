@@ -3,9 +3,7 @@
 #include <QtNetwork/qnetworkreply.h>
 #include <QtNetwork/qsslconfiguration.h>
 #include <QtNetwork/qnetworkaccessmanager.h>
-#include <QtScript/QScriptEngine>
 #include <QStringList>
-#include <QScriptValueIterator>
 #include <QJsonValue>
 #include <QString>
 #include <QFile>
@@ -54,29 +52,24 @@ void HttpRequest::readJsonObject(const QString & date, const QJsonObject &json) 
     QString dateString = date.left(10);
     foreach(const QString& key, json.keys()) {
         QJsonValue value = json.value(key);
-//        qDebug() << "Key = " << key << ", Value = " << value.toDouble() << date;
 
         double rate = value.toDouble();
         QString rateString = QString::number(rate);
-        //if: file exists and append line
+
         if (m_filePathMap.contains(key)) {
-            qDebug() << "exists";
             QFile exchangeRateFile(m_filePathMap.value(key));
-            exchangeRateFile.open(QIODevice::Append | QIODevice::Text);
-            QTextStream outStream(&exchangeRateFile);
-            outStream << dateString + " " + rateString + "\n";
-            exchangeRateFile.close();
-        } else {
-            QString fileFullPath = m_ratespath + QDir::separator() + key.toLower() + ".txt";
-//            qDebug() << "create file" << fileFullPath;
-            QFile exchangeRateFile(fileFullPath);
-            if (exchangeRateFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                qDebug() << "yes";
+            if (exchangeRateFile.open(QIODevice::Append | QIODevice::Text)) {
                 QTextStream outStream(&exchangeRateFile);
                 outStream << dateString + " " + rateString + "\n";
                 exchangeRateFile.close();
-            } else {
-                qDebug() << "failed to create " << fileFullPath;
+            }
+        } else {
+            QString fileFullPath = m_ratespath + QDir::separator() + key.toLower() + ".txt";
+            QFile exchangeRateFile(fileFullPath);
+            if (exchangeRateFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream outStream(&exchangeRateFile);
+                outStream << dateString + " " + rateString + "\n";
+                exchangeRateFile.close();
             }
         }
     }
@@ -92,7 +85,6 @@ void HttpRequest::requestReceived(QNetworkReply *reply) {
         if (v >= 200 && v < 300) { // Success
 
             QByteArray result = reply->readAll();
-            QString command(result);
             QJsonDocument itemDoc = QJsonDocument::fromJson(result);
             QJsonObject rootObject = itemDoc.object();
 
@@ -119,7 +111,6 @@ void HttpRequest::requestReceived(QNetworkReply *reply) {
             QUrl newUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
             // Because the redirection url can be relative,
             // we have to use the previous one to resolve it
-            qDebug() << "newUrl: " << newUrl;
             newUrl = reply->url().resolved(newUrl);
 
             return; // to keep the manager for the next request
