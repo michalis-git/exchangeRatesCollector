@@ -9,10 +9,11 @@
 #include <QFile>
 #include <QDir>
 #include <QMap>
-#include <qmessagebox.h>
+
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+
 #include <QStandardPaths>
 
 #define RATES_DIR_NAME "exchange_rates"
@@ -116,7 +117,7 @@ void HttpRequest::requestReceived(QNetworkReply *reply) {
             return; // to keep the manager for the next request
         }
     } else {
-        QMessageBox::warning(0, "Warning", "Error: Failed to update exchange rate files. Please check your internet connection and run the application again, manually.");
+        qDebug() << "Error: Failed to update exchange rate files. Please check your internet connection and run the application again, manually.";
     }
 
     reply->manager()->deleteLater();
