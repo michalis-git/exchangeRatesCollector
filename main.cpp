@@ -8,7 +8,8 @@
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
-    QString api_key = "48de26090d21686a8db30b43dfe6a3e3";
+    // Please type your api key
+    QString api_key = "XXXXX";
     QString endpoint = "latest?";
     QString base = "base=EUR&";
     QString url = "https://api.currencyscoop.com/v1/";
